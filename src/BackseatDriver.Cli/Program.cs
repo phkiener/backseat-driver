@@ -1,4 +1,5 @@
 ﻿using BackseatDriver.Cli;
+using BackseatDriver.Cli.Interface;
 using BackseatDriver.Cli.Provider;
 
 var baseUri = new Uri("http://localhost:8080");

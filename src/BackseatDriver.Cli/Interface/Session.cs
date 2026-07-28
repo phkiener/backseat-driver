@@ -1,6 +1,6 @@
 using BackseatDriver.Cli.Provider;
 
-namespace BackseatDriver.Cli;
+namespace BackseatDriver.Cli.Interface;
 
 /// <summary>
 /// A session started by the user, able to repeatedly send prompts to the given <see cref="IProvider"/>.
@@ -46,7 +46,7 @@ public sealed class Session(IProvider provider) : IAsyncDisposable
                 Console.WriteLine("Thinking...");
                 await processing;
 
-                if (interaction.CurrentState is not Interaction.State.Finished)
+                if (interaction.CurrentState is not InteractionState.Finished)
                 {
                     Console.WriteLine("ERR: Model did not respond as expected. Sucks to be you right now.");
                     continue;

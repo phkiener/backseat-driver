@@ -1,9 +1,8 @@
-﻿using BackseatDriver.Cli;
-using BackseatDriver.Cli.Interface;
+﻿using BackseatDriver.Cli.Interface;
 using BackseatDriver.Cli.Provider;
 
 var baseUri = new Uri("http://localhost:8080");
-var provider = new OpenAiChatCompletion(baseUri);
+var provider = new OpenAiCompatibleApi(baseUri);
 
 await using var session = new Session(provider);
 

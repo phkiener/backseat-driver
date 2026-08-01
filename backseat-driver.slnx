@@ -8,5 +8,6 @@
     <File Path="NuGet.config" />
     <File Path="README.md" />
   </Folder>
+  <Project Path="src/BackseatDriver.Abstractions/BackseatDriver.Abstractions.csproj" />
   <Project Path="src/BackseatDriver.Cli/BackseatDriver.Cli.csproj" />
 </Solution>

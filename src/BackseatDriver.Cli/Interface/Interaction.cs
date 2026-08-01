@@ -18,7 +18,7 @@ public sealed class Interaction(ICompletionProvider provider, CancellationToken 
         new SystemPrompt("Prefix your answer with 'RESPONSE: ' if you intend to answer the prompt. "),
         new SystemPrompt("Prefix your answer with 'TOOL: ' if you need to invoke a tool to provide an answer. The user will respond with 'OUTPUT: ', which will contain the output of the invoked tool. Never prefix your own answer with 'OUTPUT: ', this will always be supplied by the user."),
         new SystemPrompt("Prefix your answer with 'PROMPT: ' if you need to ask the user a clarifying question to proceed. The user will respond with 'ANSWER: ', which will be the user's answer to your prompt. Never prefix your own answer with 'ANSWER: ', this will always be supplied by the user."),
-        new SystemPrompt("You may only ever prefix your response with 'RESPONSE: ', 'TOOL: ' or 'PROMPT: '.")
+        new SystemPrompt("You may only ever prefix your response with 'RESPONSE: ', 'TOOL: ' or 'PROMPT: '. NEVER provide 'ANSWER: ' or 'OUTPUT: ' yourself.")
     ];
 
     private readonly CancellationTokenSource cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);

@@ -12,8 +12,8 @@ will respond when asked.
 
 ## Roadmap
 
-- [ ] Core processing loop with external OpenAI compatible API
-- [ ] Tool call; reading files and listing directories
+- [x] Core processing loop with external OpenAI compatible API
+- [x] Tool call; reading files and listing directories
 - [ ] ... more?
 
 ## Notes

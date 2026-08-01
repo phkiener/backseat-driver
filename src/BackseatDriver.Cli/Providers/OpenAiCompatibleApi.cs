@@ -26,7 +26,7 @@ public sealed class OpenAiCompatibleApi : ICompletionProvider, IDisposable
     }
 
     /// <inheritdoc/>
-    public async Task<GeneratedResponse> GenerateAsync(IEnumerable<Abstractions.IChatMessage> messages, CancellationToken cancellationToken = default)
+    public async Task<GeneratedResponse> GenerateAsync(IEnumerable<IChatMessage> messages, CancellationToken cancellationToken = default)
     {
         var chatMessages = messages.Select(OpenAiMessage.From).ToList();
         var response = await httpClient.PostAsJsonAsync("v1/chat/completions", new { messages = chatMessages }, cancellationToken: cancellationToken);
@@ -54,9 +54,9 @@ public sealed class OpenAiCompatibleApi : ICompletionProvider, IDisposable
             return new AssistantResponse(content[AssistantResponse.Prefix.Length..]);
         }
 
-        if (content.StartsWith(Abstractions.MessageTypes.ToolRequest.Prefix))
+        if (content.StartsWith(ToolRequest.Prefix))
         {
-            return new Abstractions.MessageTypes.ToolRequest(content[Abstractions.MessageTypes.ToolRequest.Prefix.Length..]);
+            return new ToolRequest(content[ToolRequest.Prefix.Length..]);
         }
 
         if (content.StartsWith(ClarificationQuestion.Prefix))
@@ -74,20 +74,23 @@ public sealed class OpenAiCompatibleApi : ICompletionProvider, IDisposable
     }
 
     private sealed record OpenAiMessage(
-        [property: JsonPropertyName("role")] string Role,
-        [property: JsonPropertyName("content")] string Content,
-        [property: JsonPropertyName("reasoning")] string? Reasoning = null)
+        [property: JsonPropertyName("role"), JsonRequired] string Role,
+        [property: JsonPropertyName("content"), JsonRequired] string Content)
     {
-        public static OpenAiMessage From(Abstractions.IChatMessage message)
+        public static OpenAiMessage From(IChatMessage message)
         {
             return new OpenAiMessage(message.Sender.ToString().ToLowerInvariant(), message.Content);
         }
     }
 
+    private sealed record OpenAiMessageAnswer(
+        [property: JsonPropertyName("content"), JsonRequired] string Content,
+        [property: JsonPropertyName("reasoning_content")] string? Reasoning = null);
+
     private sealed record OpenAiCompletion([property: JsonPropertyName("choices"), JsonRequired] OpenAiCompletion.CompletionChoice[] Choices)
     {
         public sealed record CompletionChoice(
-            [property: JsonPropertyName("message"), JsonRequired] OpenAiMessage Message,
+            [property: JsonPropertyName("message"), JsonRequired] OpenAiMessageAnswer Message,
             [property: JsonPropertyName("finish_reason"), JsonRequired] string FinishReason);
     }
 }

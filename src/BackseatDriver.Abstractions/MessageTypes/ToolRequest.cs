@@ -8,10 +8,15 @@ namespace BackseatDriver.Abstractions.MessageTypes;
 public sealed class ToolRequest(string invocation) : AssistantMessageBase
 {
     /// <summary>
+    /// The prefix for this kind of response.
+    /// </summary>
+    public const string Prefix = "TOOL: ";
+
+    /// <summary>
     /// Full tool command to invoke.
     /// </summary>
     public string Invocation { get; } = invocation;
 
     /// <inheritdoc />
-    public override string Content => $"TOOL: {Invocation}";
+    public override string Content => $"{Prefix}{Invocation}";
 }

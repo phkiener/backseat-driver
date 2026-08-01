@@ -3,7 +3,7 @@ namespace BackseatDriver.Abstractions;
 /// <summary>
 /// Represents a completion provider, i.e. a model capable of responding to a message.
 /// </summary>
-public interface IProvider
+public interface ICompletionProvider
 {
     /// <summary>
     /// Generate an answer (a <em>completion</em>) for the given list of messages.

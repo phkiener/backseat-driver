@@ -7,10 +7,15 @@ namespace BackseatDriver.Abstractions.MessageTypes;
 public sealed class AssistantResponse(string text) : AssistantMessageBase
 {
     /// <summary>
+    /// The prefix for this kind of response.
+    /// </summary>
+    public const string Prefix = "RESPONSE: ";
+
+    /// <summary>
     /// The response sent by the assistant.
     /// </summary>
     public string Text { get; } = text;
 
     /// <inheritdoc />
-    public override string Content => $"RESPONSE: {Text}";
+    public override string Content => $"{Prefix}{Text}";
 }

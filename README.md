@@ -14,6 +14,7 @@ will respond when asked.
 
 - [x] Core processing loop with external OpenAI compatible API
 - [x] Tool call; reading files and listing directories
+- [ ] Use standard tool-calling and scrap the custom "PROMPT:" and "ANSWER:" stuff
 - [ ] ... more?
 
 ## Notes

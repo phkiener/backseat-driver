@@ -1,0 +1,8 @@
+main {
+    box-sizing: border-box;
+
+    width: 100dvw;
+    height: 100dvh;
+
+    padding: 2rem;
+}

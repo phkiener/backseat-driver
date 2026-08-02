@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Components.Web
-@page "/"
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,7 +15,8 @@
 </head>
 
 <body>
-    <WebSession @rendermode="@GlobalRenderMode"/>
+
+    <Routes @rendermode="@GlobalRenderMode"/>
     <script src="@Assets["_framework/blazor.web.js"]"></script>
 </body>
 

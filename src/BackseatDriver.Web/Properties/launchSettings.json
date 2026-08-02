@@ -6,7 +6,9 @@
         "dotnetRunMessages": true,
         "applicationUrl": "https://localhost:7000",
         "environmentVariables": {
-          "ASPNETCORE_ENVIRONMENT": "Development"
+          "ASPNETCORE_ENVIRONMENT": "Development",
+          "Completion__Provider": "OpenAI",
+          "Completion__OpenAI__BaseUri": "https://127.0.0.1:8080"
         }
       }
     }

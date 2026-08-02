@@ -2,6 +2,7 @@
 @using BackseatDriver.Core.Abstractions
 @using Microsoft.AspNetCore.Components.Web
 @implements IDisposable
+@page "/"
 
 <main>
     <ol>
@@ -22,7 +23,7 @@
             break;
 
         default:
-            <textarea @bind="currentMessage" @onkeyup="@OnTextAreaKeyUp"></textarea>
+            <textarea @bind="currentMessage" @onkeyup="@OnTextAreaKeyUp" placeholder="Prompt..."></textarea>
             break;
     }
 </main>

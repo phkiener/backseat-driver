@@ -10,5 +10,6 @@
   </Folder>
   <Project Path="src/BackseatDriver.Abstractions/BackseatDriver.Abstractions.csproj" />
   <Project Path="src/BackseatDriver.Cli/BackseatDriver.Cli.csproj" />
+  <Project Path="src/BackseatDriver.Core/BackseatDriver.Core.csproj" />
   <Project Path="src/BackseatDriver.Web/BackseatDriver.Web.csproj" />
 </Solution>

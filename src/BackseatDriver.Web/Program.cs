@@ -1,3 +1,4 @@
+using BackseatDriver.Core;
 using BackseatDriver.Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,6 +9,8 @@ builder.Logging.AddSimpleConsole(static o => o.SingleLine = true)
 
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+builder.Services.AddBackseatDriver();
 
 var app = builder.Build();
 

@@ -1,3 +1,118 @@
-<main>
+@using BackseatDriver.Core
+@using BackseatDriver.Core.Abstractions
+@using Microsoft.AspNetCore.Components.Web
+@implements IDisposable
 
+<main>
+    <ol>
+        @foreach (var message in chatHistory)
+        {
+            <li>@message</li>
+        }
+    </ol>
+
+    @switch (processing)
+    {
+        case true when currentTool is not null:
+            <span>Running...</span>
+            break;
+
+        case true:
+            <span>Invoking @currentTool...</span>
+            break;
+
+        default:
+            <textarea @bind="currentMessage" @onkeyup="@OnTextAreaKeyUp"></textarea>
+            break;
+    }
 </main>
+
+@code {
+
+    private readonly List<string> chatHistory = [];
+    private bool processing = false;
+    private string? currentTool = null;
+
+    private string currentMessage = "";
+
+    [Inject]
+    public required IModelSession ModelSession { get; set; }
+
+    [Inject]
+    public required IToolEngine ToolEngine { get; set; }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        ModelSession.OnMessageAdded += OnMessageReceived;
+        ModelSession.OnProcessingStarted += OnSessionStatusChanged;
+        ModelSession.OnProcessingCompleted += OnSessionStatusChanged;
+
+        ToolEngine.OnToolStarted += OnToolStarted;
+        ToolEngine.OnToolFinished += OnToolFinished;
+    }
+
+    private void OnMessageReceived(object? sender, IMessage? message)
+    {
+        if (message is Message.UserPrompt userPrompt)
+        {
+            chatHistory.Add($"USER: {userPrompt}");
+        }
+
+        if (message is Message.AssistantResponse response)
+        {
+            chatHistory.Add($"ASSISTANT: {response}");
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnSessionStatusChanged(object? sender, EventArgs eventArgs)
+    {
+        processing = ModelSession.IsWorking;
+        StateHasChanged();
+    }
+
+    private void OnToolStarted(object? sender, string? tool)
+    {
+        currentTool = tool;
+    }
+
+    private void OnToolFinished(object? sender, EventArgs eventArgs)
+    {
+        currentTool = null;
+    }
+
+    public void Dispose()
+    {
+        ModelSession.OnMessageAdded -= OnMessageReceived;
+        ModelSession.OnProcessingStarted -= OnSessionStatusChanged;
+        ModelSession.OnProcessingCompleted -= OnSessionStatusChanged;
+
+        ToolEngine.OnToolStarted -= OnToolStarted;
+        ToolEngine.OnToolFinished -= OnToolFinished;
+    }
+
+    private void OnTextAreaKeyUp(KeyboardEventArgs eventArgs)
+    {
+        if (currentMessage is not "" && eventArgs.Key is "Enter")
+        {
+            var execution = ModelSession.SendAsync(currentMessage);
+
+            if (execution is { IsCompleted: true, Result: false })
+            {
+                // Message wasn't accepted.
+            }
+            else
+            {
+                // Message was accepted, continue displaying stuff.
+                currentMessage = "";
+            }
+        }
+    }
+
+}

@@ -15,11 +15,11 @@
     @switch (processing)
     {
         case true when currentTool is not null:
-            <span>Running...</span>
+            <span>Invoking @currentTool...</span>
             break;
 
         case true:
-            <span>Invoking @currentTool...</span>
+            <span>Running...</span>
             break;
 
         default:
@@ -70,23 +70,25 @@
             chatHistory.Add($"ASSISTANT: {response.Content}");
         }
 
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
     private void OnSessionStatusChanged(object? sender, EventArgs eventArgs)
     {
         processing = ModelSession.IsWorking;
-        StateHasChanged();
+        InvokeAsync(StateHasChanged);
     }
 
     private void OnToolStarted(object? sender, string? tool)
     {
         currentTool = tool;
+        InvokeAsync(StateHasChanged);
     }
 
     private void OnToolFinished(object? sender, EventArgs eventArgs)
     {
         currentTool = null;
+        InvokeAsync(StateHasChanged);
     }
 
     public void Dispose()
@@ -99,21 +101,22 @@
         ToolEngine.OnToolFinished -= OnToolFinished;
     }
 
-    private void SendMessage(EventArgs eventArgs)
+    private async void SendMessage(EventArgs eventArgs)
     {
-        if (currentMessage is not "")
+        try
         {
-            var execution = ModelSession.SendAsync(currentMessage);
-
-            if (execution is { IsCompleted: true, Result: false })
+            if (currentMessage is not "")
             {
-                // Message wasn't accepted.
-            }
-            else
-            {
-                // Message was accepted, continue displaying stuff.
+                var prompt = new string(currentMessage);
                 currentMessage = "";
+
+                await Task.Factory.StartNew(() => ModelSession.SendAsync(prompt), TaskCreationOptions.LongRunning);
             }
+        }
+        catch (Exception e)
+        {
+            _ = e;
+            // Just ignore it.
         }
     }
 

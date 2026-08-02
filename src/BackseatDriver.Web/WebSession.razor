@@ -23,7 +23,8 @@
             break;
 
         default:
-            <textarea @bind="currentMessage" @onkeyup="@OnTextAreaKeyUp" placeholder="Prompt..."></textarea>
+            <textarea @bind="currentMessage" placeholder="Prompt..."></textarea>
+            <button type="button" @onclick="@SendMessage">Send</button>
             break;
     }
 </main>
@@ -61,12 +62,12 @@
     {
         if (message is Message.UserPrompt userPrompt)
         {
-            chatHistory.Add($"USER: {userPrompt}");
+            chatHistory.Add($"USER: {userPrompt.Content}");
         }
 
         if (message is Message.AssistantResponse response)
         {
-            chatHistory.Add($"ASSISTANT: {response}");
+            chatHistory.Add($"ASSISTANT: {response.Content}");
         }
 
         StateHasChanged();
@@ -98,9 +99,9 @@
         ToolEngine.OnToolFinished -= OnToolFinished;
     }
 
-    private void OnTextAreaKeyUp(KeyboardEventArgs eventArgs)
+    private void SendMessage(EventArgs eventArgs)
     {
-        if (currentMessage is not "" && eventArgs.Key is "Enter")
+        if (currentMessage is not "")
         {
             var execution = ModelSession.SendAsync(currentMessage);
 

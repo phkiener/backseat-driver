@@ -23,8 +23,11 @@
             break;
 
         default:
-            <textarea @bind="currentMessage" placeholder="Prompt..."></textarea>
-            <button type="button" @onclick="@SendMessage">Send</button>
+            <form @onsubmit="@SendMessage">
+                <input type="text" @bind="currentMessage" placeholder="Prompt..." @ref="@textField">
+                <button type="submit">Send</button>
+            </form>
+
             break;
     }
 </main>
@@ -35,6 +38,7 @@
     private bool processing = false;
     private string? currentTool = null;
 
+    private ElementReference textField;
     private string currentMessage = "";
 
     [Inject]
@@ -42,6 +46,7 @@
 
     [Inject]
     public required IToolEngine ToolEngine { get; set; }
+
 
     protected override void OnAfterRender(bool firstRender)
     {
@@ -56,6 +61,14 @@
 
         ToolEngine.OnToolStarted += OnToolStarted;
         ToolEngine.OnToolFinished += OnToolFinished;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!processing)
+        {
+            await textField.FocusAsync();
+        }
     }
 
     private void OnMessageReceived(object? sender, IMessage? message)
@@ -113,9 +126,8 @@
                 await Task.Factory.StartNew(() => ModelSession.SendAsync(prompt), TaskCreationOptions.LongRunning);
             }
         }
-        catch (Exception e)
+        catch
         {
-            _ = e;
             // Just ignore it.
         }
     }

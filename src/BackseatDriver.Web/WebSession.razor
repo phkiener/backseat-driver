@@ -83,6 +83,16 @@
             chatHistory.Add($"ASSISTANT: {response.Content}");
         }
 
+        if (message is Message.ToolRequest toolRequest)
+        {
+            chatHistory.Add($"TOOL: {toolRequest.Content}");
+        }
+
+        if (message is Message.ToolResult result)
+        {
+            chatHistory.Add($"RESULT: {result.Content}");
+        }
+
         InvokeAsync(StateHasChanged);
     }
 

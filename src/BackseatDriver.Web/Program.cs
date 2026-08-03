@@ -12,9 +12,10 @@ builder.Logging.AddSimpleConsole(static o => o.SingleLine = true)
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddTool<GetCurrentDateTime>();
 builder.Services.AddBackseatDriver()
-    .AddOpenAI();
+    .AddOpenAI()
+    .AddTool<GetCurrentDateTime>()
+    .AddTool<WorkingDirectory>();
 
 var app = builder.Build();
 

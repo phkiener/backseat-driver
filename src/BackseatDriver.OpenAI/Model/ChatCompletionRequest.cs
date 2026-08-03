@@ -31,5 +31,5 @@ public sealed class ChatCompletionRequest
     /// Currently supported values are none, minimal, low, medium, high, xhigh, and max.
     /// </remarks>
     [JsonPropertyName("reasoning_effort")]
-    public string? ReasoningEffort => "medium";
+    public string? ReasoningEffort => "high";
 }

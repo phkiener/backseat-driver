@@ -61,7 +61,7 @@ public abstract class ChatCompletionMessageParam
         /// The role of the messages author.
         /// </summary>
         [JsonPropertyName("role")]
-        public string Role => "function";
+        public string Role => "tool";
 
         /// <summary>
         /// Tool call that this message is responding to.

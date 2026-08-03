@@ -1,4 +1,5 @@
 using BackseatDriver.Core.Abstractions;
+using Microsoft.Extensions.Logging;
 
 namespace BackseatDriver.Core.Defaults;
 
@@ -8,7 +9,8 @@ namespace BackseatDriver.Core.Defaults;
 /// <param name="systemPromptProvider">The <see cref="ISystemPromptProvider"/> to supply the system prompt for the model.</param>
 /// <param name="toolEngine">The <see cref="IToolEngine"/> to invoke <see cref="ITool"/>s.</param>
 /// <param name="completionProvider">The <see cref="ICompletionProvider"/> to generate the assistant's response.</param>
-public sealed class DefaultModelSession(ISystemPromptProvider systemPromptProvider, IToolEngine toolEngine, ICompletionProvider completionProvider) : IModelSession
+/// <param name="logger">The <see cref="ILogger"/> to use.</param>
+public sealed class DefaultModelSession(ISystemPromptProvider systemPromptProvider, IToolEngine toolEngine, ICompletionProvider completionProvider, ILogger<DefaultModelSession> logger) : IModelSession
 {
     private readonly List<IMessage> messageHistory = [systemPromptProvider.SystemPrompt];
 
@@ -47,13 +49,13 @@ public sealed class DefaultModelSession(ISystemPromptProvider systemPromptProvid
                 if (response is Message.ToolRequest toolRequest)
                 {
                     var output = await toolEngine.InvokeAsync(toolRequest.Content);
-                    request = new Message.ToolResult(output);
+                    request = new Message.ToolResult(toolRequest.Id, output);
                 }
             }
         }
-        catch
+        catch (Exception e)
         {
-            // TODO handle this... somehow.
+            logger.LogError(e, "Failed to generate response.");
         }
         finally
         {

@@ -1,7 +1,7 @@
 using System.Net.Http.Json;
-using System.Text.Json.Serialization;
 using BackseatDriver.Core;
 using BackseatDriver.Core.Abstractions;
+using BackseatDriver.OpenAI.Model;
 
 namespace BackseatDriver.OpenAI;
 
@@ -26,79 +26,65 @@ public class CompletionProvider : ICompletionProvider, IDisposable
     /// <inheritdoc />
     public async Task<IAssistantMessage> GenerateAsync(IEnumerable<IMessage> history, IEnumerable<ITool> availableTools)
     {
-        var chatMessages = history.Select(OpenAiMessage.From).Where(static m => m is not (null or { Content: "" })).ToList();
-        var tools = availableTools.Select(OpenAiFunctionTool.From).Select(f => new { function = f, type = "function" }).ToList();
+        var request = new ChatCompletionRequest
+        {
+            Messages = history.Select(MapMessage).Where(m => m is not null).ToArray()!,
+            Tools = availableTools.Select(MapTool).ToArray()
+        };
 
-        var response = await httpClient.PostAsJsonAsync("v1/chat/completions", new { messages = chatMessages, tools = tools });
+        var response = await httpClient.PostAsJsonAsync("v1/chat/completions", request);
         if (response.StatusCode == System.Net.HttpStatusCode.OK)
         {
-            var parsedResponse = await response.Content.ReadFromJsonAsync<OpenAiCompletion>();
+            var parsedResponse = await response.Content.ReadFromJsonAsync<ChatCompletionResponse>();
             var selectedAnswer = parsedResponse?.Choices.FirstOrDefault();
 
-            if (selectedAnswer?.FinishReason is null or not ("stop" or "tool_calls"))
+            if (selectedAnswer?.FinishReason is null or ChatCompletionResponse.FinishReason.Length or ChatCompletionResponse.FinishReason.ContentFilter)
             {
                 throw new InvalidOperationException("Model answer invalid.");
             }
 
-            if (selectedAnswer.Message.ToolCalls is not (null or []))
+            if (selectedAnswer.FinishReason is ChatCompletionResponse.FinishReason.ToolCalls or ChatCompletionResponse.FinishReason.FunctionCalls)
             {
-                // Only handle the first one.. for now.
-                return new Message.ToolRequest(selectedAnswer.Message.ToolCalls.First().Function.Name);
+                var functionCall = selectedAnswer.Message.ToolCalls?.FirstOrDefault()
+                                   ?? throw new InvalidOperationException("Model stopped for a tool call but no tool call was returned.");
+
+                return new Message.ToolRequest(functionCall.Id, functionCall.Function.Name) { Reasoning = selectedAnswer.Message.Reasoning };
             }
 
-            new Message.AssistantResponse(selectedAnswer.Message.Content) { Reasoning = selectedAnswer.Message.Reasoning };
+            return new Message.AssistantResponse(selectedAnswer.Message.Content ?? "") { Reasoning = selectedAnswer.Message.Reasoning };
         }
 
-        throw new InvalidOperationException("Model answer invalid.");
+        throw new InvalidOperationException($"API returned non-success status code {(int)response.StatusCode}.");
+    }
+
+    private static ChatCompletionMessageParam? MapMessage(IMessage message)
+    {
+        return message switch
+        {
+            Message.AssistantResponse assistantResponse => new ChatCompletionMessageParam.AssistantMessage { Content = assistantResponse.Content },
+            Message.ToolRequest toolRequest => new ChatCompletionMessageParam.AssistantMessage { ToolCalls = [new ChatCompletionFunctionToolCall { Id = toolRequest.Id, Function = new() { Name = toolRequest.Content }}]},
+            Message.SystemPrompt systemPrompt => new ChatCompletionMessageParam.SystemMessage { Content = systemPrompt.Content },
+            Message.ToolResult toolResult => new ChatCompletionMessageParam.FunctionMessage { ToolCallId = toolResult.Id, Content = toolResult.Content },
+            Message.UserPrompt userPrompt => new ChatCompletionMessageParam.UserMessage { Content = userPrompt.Content },
+            _ => null,
+        };
+    }
+
+    private static ChatCompletionFunctionTool MapTool(ITool tool)
+    {
+        return new ChatCompletionFunctionTool
+        {
+            Function = new ChatCompletionFunctionTool.FunctionToolDefinition
+            {
+                Name = tool.Name,
+                Description = tool.Description
+            }
+        };
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
         httpClient.Dispose();
-    }
-
-    private sealed record OpenAiFunctionTool(
-        [property: JsonPropertyName("name"), JsonRequired] string Name,
-        [property: JsonPropertyName("description"), JsonRequired] string Description)
-    {
-        public static OpenAiFunctionTool From(ITool tool)
-        {
-            return new OpenAiFunctionTool(tool.Name, tool.Description);
-        }
-    }
-
-
-    private sealed record OpenAiMessage(
-        [property: JsonPropertyName("role"), JsonRequired] string Role,
-        [property: JsonPropertyName("content"), JsonRequired] string Content)
-    {
-        public static OpenAiMessage? From(IMessage message)
-        {
-            return message switch
-            {
-                Message.AssistantResponse assistantResponse => new OpenAiMessage("assistant", assistantResponse.Content),
-                Message.SystemPrompt systemPrompt => new OpenAiMessage("system", systemPrompt.Content),
-                Message.UserPrompt userPrompt => new OpenAiMessage("user", userPrompt.Content),
-                _ => null
-            };
-        }
-    }
-
-    private sealed record OpenAiMessageAnswer(
-        [property: JsonPropertyName("content"), JsonRequired] string Content,
-        [property: JsonPropertyName("reasoning_content")] string? Reasoning = null,
-        [property: JsonPropertyName("tool_calls")] OpenAiToolCall[]? ToolCalls = null);
-
-    private sealed record OpenAiToolCall([property: JsonPropertyName("function"), JsonRequired] OpenAiToolCall.FunctionCall Function)
-    {
-        public sealed record FunctionCall([property: JsonPropertyName("name"), JsonRequired] string Name);
-    }
-
-    private sealed record OpenAiCompletion([property: JsonPropertyName("choices"), JsonRequired] OpenAiCompletion.CompletionChoice[] Choices)
-    {
-        public sealed record CompletionChoice(
-            [property: JsonPropertyName("message"), JsonRequired] OpenAiMessageAnswer Message,
-            [property: JsonPropertyName("finish_reason"), JsonRequired] string FinishReason);
     }
 }

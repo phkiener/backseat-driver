@@ -55,13 +55,32 @@ public abstract class Message
     /// <summary>
     /// A request to invoke a tool.
     /// </summary>
+    /// <param name="id">Id of the tool call.</param>
     /// <param name="name">Name of the tool to invoke.</param>
-    public sealed class ToolRequest(string name) : Message("assistant", name), IAssistantMessage; // TODO: Parameters
+    public sealed class ToolRequest(string id, string name) : Message("assistant", name), IAssistantMessage // TODO: Parameters
+    {
+        /// <summary>
+        /// Id of the tool call.
+        /// </summary>
+        public string Id { get; } = id;
+
+        /// <summary>
+        /// The reasoning behind the generated response, if available.
+        /// </summary>
+        public string? Reasoning { get; init; }
+    }
 
     /// <summary>
     /// The result of a tool call.
     /// </summary>
+    /// <param name="id">Id of the tool call.</param>
     /// <param name="content">The full output of the invoked tool.</param>
     /// <seealso cref="Message.ToolRequest"/>
-    public sealed class ToolResult(string content) : Message("tool", content), ISystemMessage;
+    public sealed class ToolResult(string id, string content) : Message("tool", content), ISystemMessage
+    {
+        /// <summary>
+        /// Id of the tool call.
+        /// </summary>
+        public string Id { get; } = id;
+    }
 }

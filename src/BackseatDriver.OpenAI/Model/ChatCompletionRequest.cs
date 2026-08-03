@@ -17,4 +17,19 @@ public sealed class ChatCompletionRequest
     [JsonRequired]
     [JsonPropertyName("tools")]
     public ChatCompletionFunctionTool[] Tools { get; init; } = [];
+
+    /// <summary>
+    /// Whether to enable parallel function calling during tool use.
+    /// </summary>
+    [JsonPropertyName("parallel_tool_calls")]
+    public bool ParallelToolCalls => false;
+
+    /// <summary>
+    /// Constrains effort on reasoning for reasoning models.
+    /// </summary>
+    /// <remarks>
+    /// Currently supported values are none, minimal, low, medium, high, xhigh, and max.
+    /// </remarks>
+    [JsonPropertyName("reasoning_effort")]
+    public string? ReasoningEffort => "medium";
 }

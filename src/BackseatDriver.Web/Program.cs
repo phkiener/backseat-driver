@@ -1,4 +1,6 @@
 using BackseatDriver.Core;
+using BackseatDriver.Core.Tools;
+using BackseatDriver.OpenAI;
 using BackseatDriver.Web;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,7 +12,9 @@ builder.Logging.AddSimpleConsole(static o => o.SingleLine = true)
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddBackseatDriver();
+builder.Services.AddTool<GetCurrentDateTime>();
+builder.Services.AddBackseatDriver()
+    .AddOpenAI();
 
 var app = builder.Build();
 

@@ -9,5 +9,6 @@
     <File Path="README.md" />
   </Folder>
   <Project Path="src/BackseatDriver.Core/BackseatDriver.Core.csproj" />
+  <Project Path="src/BackseatDriver.OpenAI/BackseatDriver.OpenAI.csproj" />
   <Project Path="src/BackseatDriver.Web/BackseatDriver.Web.csproj" />
 </Solution>

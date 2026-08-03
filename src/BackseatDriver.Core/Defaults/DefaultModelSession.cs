@@ -44,7 +44,7 @@ public sealed class DefaultModelSession(ISystemPromptProvider systemPromptProvid
             {
                 response = await GenerateAsync(request);
 
-                if (request is Message.ToolRequest toolRequest)
+                if (response is Message.ToolRequest toolRequest)
                 {
                     var output = await toolEngine.InvokeAsync(toolRequest.Content);
                     request = new Message.ToolResult(output);

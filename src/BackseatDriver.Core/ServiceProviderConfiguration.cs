@@ -37,7 +37,7 @@ public static class ServiceProviderConfiguration
     /// <returns>The passed-in <see cref="IServiceCollection"/>.</returns>
     public static IServiceCollection AddTool<TTool>(this IServiceCollection services) where TTool : class, ITool
     {
-        services.TryAddScoped<ITool, TTool>();
+        services.AddSingleton<ITool, TTool>();
         return services;
     }
 }

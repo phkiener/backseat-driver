@@ -6,7 +6,7 @@ namespace BackseatDriver.Core.Providers;
 /// <summary>
 /// A factory to build a <see cref="ICompletionProvider"/> based on the <see cref="IConfiguration"/>.
 /// </summary>
-public sealed class ConfigurationCompletionProviderFactory(IConfiguration configuration)
+public sealed class ConfigurationCompletionProviderFactory(IConfiguration configuration, IEnumerable<ICompletionProviderFactory> factories)
 {
     /// <summary>
     /// Create an <see cref="ICompletionProvider"/>.
@@ -15,17 +15,10 @@ public sealed class ConfigurationCompletionProviderFactory(IConfiguration config
     public ICompletionProvider Build()
     {
         var providerType = configuration["Completion:Provider"];
-        if (providerType == "OpenAI")
-        {
-            var options = configuration.GetSection("Completion:OpenAI").Get<OpenAiProviderSettings>();
+        var factory = factories.SingleOrDefault(f => f.Name == providerType);
 
-            return options is null
-                ? throw new InvalidOperationException($"Missing configuration for provider '{providerType}'.")
-                : new OpenAiCompletionProvider(options.BaseUri);
-        }
-
-        throw new InvalidOperationException($"Unknown completion provider '{providerType}'.");
+        return factory is null
+            ? throw new InvalidOperationException($"Unknown completion provider '{providerType}'.")
+            : factory.Build(configuration.GetSection($"Completion:{factory.Name}"));
     }
-
-    private sealed record OpenAiProviderSettings(Uri BaseUri);
 }

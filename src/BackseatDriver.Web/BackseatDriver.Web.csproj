@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../BackseatDriver.Core/BackseatDriver.Core.csproj" />
+    <ProjectReference Include="..\BackseatDriver.OpenAI\BackseatDriver.OpenAI.csproj" />
   </ItemGroup>
 
 </Project>

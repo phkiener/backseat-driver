@@ -8,7 +8,19 @@
     <ol>
         @foreach (var message in chatHistory)
         {
-            <li>@message</li>
+            <li>
+                @if (message.AdditionalContent is not null)
+                {
+                    <details>
+                        <summary>@(message.Sender): @(message.Content)</summary>
+                        <p>@message.AdditionalContent</p>
+                    </details>
+                }
+                else
+                {
+                    <span>@(message.Sender): @(message.Content)</span>
+                }
+            </li>
         }
     </ol>
 
@@ -34,7 +46,9 @@
 
 @code {
 
-    private readonly List<string> chatHistory = [];
+    private sealed record HistoryEntry(string Sender, string Content, string? AdditionalContent);
+
+    private readonly List<HistoryEntry> chatHistory = [];
     private bool processing = false;
     private string? currentTool = null;
 
@@ -75,22 +89,22 @@
     {
         if (message is Message.UserPrompt userPrompt)
         {
-            chatHistory.Add($"USER: {userPrompt.Content}");
+            chatHistory.Add(new("user", userPrompt.Content, null));
         }
 
         if (message is Message.AssistantResponse response)
         {
-            chatHistory.Add($"ASSISTANT: {response.Content}");
+            chatHistory.Add(new("assistant", response.Content, response.Reasoning));
         }
 
         if (message is Message.ToolRequest toolRequest)
         {
-            chatHistory.Add($"TOOL: {toolRequest.Content}");
+            chatHistory.Add(new("assistant", toolRequest.Content, toolRequest.Reasoning));
         }
 
         if (message is Message.ToolResult result)
         {
-            chatHistory.Add($"RESULT: {result.Content}");
+            chatHistory.Add(new("tool", result.Content, null));
         }
 
         InvokeAsync(StateHasChanged);

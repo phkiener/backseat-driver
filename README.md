@@ -14,7 +14,13 @@ will respond when asked.
 
 - [x] Core processing loop with external OpenAI compatible API
 - [x] Tool call; reading files and listing directories
-- [ ] Use standard tool-calling and scrap the custom "PROMPT:" and "ANSWER:" stuff
+- [x] Use standard tool-calling and scrap the custom "PROMPT:" and "ANSWER:" stuff
+- [ ] Tools for file-IO (list files, find file / grep, get content of file)
+- [ ] Proper CLI client
+- [ ] Styling for the web client
+- [ ] Launch configs
+- [ ] Hooks for customization
+- [ ] Rebrand to library + default implementation? "HarnessR" cause I can?
 - [ ] ... more?
 
 ## Notes

@@ -13,7 +13,7 @@
                 {
                     <details>
                         <summary>@(message.Sender): @(message.Content)</summary>
-                        <p>@message.AdditionalContent</p>
+                        <p style="white-space: preserve-breaks">@message.AdditionalContent</p>
                     </details>
                 }
                 else
@@ -104,7 +104,7 @@
 
         if (message is Message.ToolResult result)
         {
-            chatHistory.Add(new("tool", result.Content, null));
+            chatHistory.Add(new("tool", "output", result.Content));
         }
 
         InvokeAsync(StateHasChanged);

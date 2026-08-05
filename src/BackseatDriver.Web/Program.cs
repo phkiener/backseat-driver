@@ -15,7 +15,8 @@ builder.Services.AddRazorComponents()
 builder.Services.AddBackseatDriver()
     .AddOpenAI()
     .AddTool<GetCurrentDateTime>()
-    .AddTool<WorkingDirectory>();
+    .AddTool<WorkingDirectory>()
+    .AddTool<ListFiles>();
 
 var app = builder.Build();
 

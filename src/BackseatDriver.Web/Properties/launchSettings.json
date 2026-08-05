@@ -5,6 +5,7 @@
         "commandName": "Project",
         "dotnetRunMessages": true,
         "applicationUrl": "https://localhost:7000",
+        "workingDirectory": "$(workspaceFolder)../../",
         "environmentVariables": {
           "ASPNETCORE_ENVIRONMENT": "Development",
           "Completion__Provider": "OpenAI",
